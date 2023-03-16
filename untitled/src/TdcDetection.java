@@ -22,7 +22,7 @@ public class TdcDetection {
     int[] selectivity;
     public static void main(String[] args) {
         TdcFind tdc = new TdcFind();
-        List<String[]> input = new ArrayList<>  ();
+        List<String[]> input = new ArrayList<>();
         boolean[] types = tdc.readFile("E:\\学校\\科研\\研究生毕设\\数据集\\TDC\\TestStock.csv", input);
 //        for (int i = 0; i < tdc.col; i++) {
 //            System.out.println(tdc.attributeNameArray[i] + " " + types[i]);
@@ -235,20 +235,33 @@ public class TdcDetection {
 
 //        writeFileArrayB();
     }
-    public void errorBatchDetection(List<Integer> tdcs) {
-
+    public void errorBatchDetection(List<Integer> tdc, List<String> input) {
+        int size = input.size();
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                if (i == j) { continue; }
+                for (int p : tdc) {
+                    int index = 0;
+                }
+            }
+        }
 
     }
 
-    public void errorStreamDetection(String[] newData, List<Integer> tdcs) {
-        switch (tdcs.get(0)) {
+    public void errorStreamDetection(String[] newData, List<Integer> tdc, List<String[]> input) {
+        switch (tdc.get(0)) {
             case 0:
-
+                for (int i = input.size() - 1; i >= 0; i--) {
+//                    if ()
+                }
                 break;
             case 1:
+                for (int i = 0; i < input.size(); i++) {
 
+                }
                 break;
             case 2:
+
                 break;
             case 3:
                 break;

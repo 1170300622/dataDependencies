@@ -1,6 +1,7 @@
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -8,21 +9,15 @@ import java.util.Set;
  */
 public class Main {
     public static void main(String[] args) {
-        BufferedWriter writer = null;
-        try {
-            FileWriter file = new FileWriter("data/StockArrayB.txt");
-            writer = new BufferedWriter(file);
-            writer.write("321");
-            writer.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                writer.close();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
+        Set<Set<Integer>> all = new HashSet<>();
+        Set<Integer> a = new HashSet<>();
+        a.add(1);
+        a.add(2);
+        Set<Integer> b = new HashSet<>();
+        b.add(1);
+        b.add(2);
+        all.add(a);
+        System.out.println(all.contains(b));
+        System.out.println(a.equals(b));
     }
 }
