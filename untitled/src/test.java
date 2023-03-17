@@ -12,7 +12,7 @@ public class test {
     List<Map<String, List<Integer>>> pliString = new ArrayList<>();
     List<TreeMap<Double, List<Integer>>> pliNumerical = new ArrayList<>();
     List<Integer> timeIndex = new ArrayList<Integer>();
-
+    Map<Integer, Set<Integer>> predicateEvidence = new HashMap<Integer, Set<Integer>>();
     int row, col;
     //    final int hashMapInitialCapacity = 10;
     List<Set<Integer>> arrayB;
@@ -22,7 +22,7 @@ public class test {
     public static void main(String[] args) {
         test tdc = new test();
         List<String[]> input = new ArrayList<>();
-        boolean[] types = tdc.readFile("data/Stock.csv", input);
+        boolean[] types = tdc.readFile("data/Stock/Stock-10000.csv", input);
 //        for (int i = 0; i < tdc.col; i++) {
 //            System.out.println(tdc.attributeNameArray[i] + " " + types[i]);
 //        }
@@ -276,18 +276,29 @@ public class test {
         pliIndex.clear();
         pliNumerical.clear();
         pliString.clear();
-        countSelectivity();
+        countSelectivity(types);
     }
 
-    public void countSelectivity() {
+    public void countSelectivity(boolean[] types) {
         int index = -1;
+        for (int i = 0; i < col; i++) {
+            predicateEvidence.put(i * 6, new HashSet<Integer>());
+            predicateEvidence.put(i * 6 + 1, new HashSet<Integer>());
+            if (!types[i]) {
+                predicateEvidence.put(i * 6 + 2, new HashSet<Integer>());
+                predicateEvidence.put(i * 6 + 3, new HashSet<Integer>());
+                predicateEvidence.put(i * 6 + 4, new HashSet<Integer>());
+                predicateEvidence.put(i * 6 + 5, new HashSet<Integer>());
+            }
+        }
         for (Set<Integer> set : arrayB) {
             index++;
-            if (index % row == 0) {
+            if (index % row == index / row) {
                 continue;
             }
             for (Integer predicate : set) {
                 selectivity[predicate]++;
+                predicateEvidence.get(predicate).add(index);
             }
         }
     }
@@ -304,7 +315,7 @@ public class test {
         Set<Set<Integer>> allMinimalCover = new HashSet<>();
         // Time predicate
         Set<Integer> otherPredicate = new HashSet<Integer>();
-        for (int i = 0; i < col; i++) {
+        for (int i = 1; i < col; i++) {
             int tmpInt = i * 6;
             otherPredicate.add(tmpInt);
             otherPredicate.add(tmpInt + 1);
@@ -327,77 +338,122 @@ public class test {
             if (i % row != i / row) { isFind.add(i); }
         }
 //        System.out.println("近似数：" + approximateNumber);
+        // "="谓词
 
-//        for (int i = 0; i < 6; i++) {
-//            Set<Integer> currentPredicate = new HashSet<>();
-//            currentPredicate.add(i);
-//            for (int j = 0; j < 6; j++) { otherPredicate.remove(j); }
-//            Set<Integer> tmpFind = new HashSet<Integer>(isFind);
+        /*Set<Integer> currentPredicate = new TreeSet<>();
+        currentPredicate.add(0);
+        Set<Integer> tmpFind = new HashSet<Integer>(isFind);
+        for (int i = 0; i < timeIndex.size(); i++) {
+            int startIndex = i > 0 ? timeIndex.get(i-1) + 1 : 0;
+            int endIndex = timeIndex.get(i);
+            for (int j = startIndex; j <= endIndex; j++) {
+                for (int k = startIndex; k <= endIndex; k++) {
+                    if (j == k) { continue; }
+                    tmpFind.remove(j * row + k);
+                }
+            }
+        }
+        findCover(currentPredicate, tmpFind, otherPredicate, orderedPre, allMinimalCover, approximateNumber, 10);
+        currentPredicate.remove(0);
+        tmpFind.clear();
+
+        tmpFind = new HashSet<Integer>(isFind);
+        currentPredicate.add(1);
+        for (int i = 0; i < timeIndex.size(); i++) {
+            int startIndex = i > 0 ? timeIndex.get(i-1) + 1 : 0;
+            int endIndex = timeIndex.get(i);
+            for (int j = startIndex; j <= endIndex; j++) {
+                for (int k = 0; k < row; k++) {
+                    if (k < startIndex || k > endIndex) {
+                        tmpFind.remove(j * row + k);
+                    }
+                }
+            }
+        }
+        findCover(currentPredicate, tmpFind, otherPredicate, orderedPre, allMinimalCover, approximateNumber, 10);
+        currentPredicate.remove(1);
+        tmpFind.clear();
+
+        tmpFind = new HashSet<Integer>(isFind);
+        currentPredicate.add(2);
+        for (int i = 0; i < timeIndex.size(); i++) {
+            int startIndex = i > 0 ? timeIndex.get(i-1) + 1 : 0;
+            int endIndex = timeIndex.get(i);
+            for (int j = startIndex; j <= endIndex; j++) {
+                for (int k = 0; k < row; k++) {
+                    if (k < startIndex || k > endIndex) {
+                        tmpFind.remove(j * row + k);
+                    }
+                }
+            }
+        }
+        findCover(currentPredicate, tmpFind, otherPredicate, orderedPre, allMinimalCover, approximateNumber, 10);
+        currentPredicate.remove(2);
+        tmpFind.clear();
+
+        tmpFind = new HashSet<Integer>(isFind);
+        currentPredicate.add(3);*/
+
+
+
+        for (int i = 0; i < 6; i++) {
+            TreeSet<Integer> currentPredicate = new TreeSet<>();
+            currentPredicate.add(i);
+            Set<Integer> tmpFind = new HashSet<Integer>(isFind);
 //            for (int j = 1; j < row * row; j++) {
 //                if (j % row == j /row) { continue; }
-//                int index0 = j / row, index1 = j % row;
-//                switch (i) {
-//                    case 2:
-//                        if (index0 < index1) { tmpFind.remove(j); }
-//                        break;
-//                    case 4:
-//                        if (index0 > index1) { tmpFind.remove(j); }
-//                        break;
-//                    default:
-//                }
-//                if (tmpFind.contains(j) && !arrayB.get(j).contains(i)) { tmpFind.remove(j); }
+////                int index0 = j / row, index1 = j % row;
+////                switch (i) {
+////                    case 2:
+////                        if (index0 < index1) { tmpFind.remove(j); }
+////                        break;
+////                    case 4:
+////                        if (index0 > index1) { tmpFind.remove(j); }
+////                        break;
+////                    default:
+////                }
+//
+//                if (tmpFind.contains(j) && arrayB.get(j).contains(i)) { tmpFind.remove(j); }
 //            }
-//            findCover(currentPredicate, tmpFind, otherPredicate, orderedPre, allMinimalCover, approximateNumber);
-//            for (int j = 0; j < 6; j++) { otherPredicate.add(j); }
-//        }
-        Set<Integer> currentPredicate = new TreeSet<>();
-        findCover(currentPredicate, isFind, otherPredicate, orderedPre, allMinimalCover, approximateNumber, 4);
+            tmpFind.removeAll(predicateEvidence.get(i));
+            findCover(currentPredicate, tmpFind, otherPredicate, orderedPre, allMinimalCover, approximateNumber, 4);
+        }
+
+//        findCover(currentPredicate, isFind, otherPredicate, orderedPre, allMinimalCover, approximateNumber, 10);
         System.out.println(allMinimalCover.size());
         return allMinimalCover;
     }
-    public void findCover(Set<Integer> currentPredicate, Set<Integer> isFind, Set<Integer> otherPredicate, List<int[]> orderedPre, Set<Set<Integer>> allMinimalCover, int approximate, int maxPreSize) {
+    public void findCover(TreeSet<Integer> currentPredicate, Set<Integer> isFind, Set<Integer> otherPredicate, List<int[]> orderedPre, Set<Set<Integer>> allMinimalCover, int approximate, int maxPreSize) {
         // Satisfy the approximation.
         if (isFind.size() <= approximate && !allMinimalCover.contains(currentPredicate) && !isSubset(allMinimalCover, currentPredicate)) {
-//            int nowIndex = 0;
-//            for (Integer predicate : currentPredicate) {
-//                int index0 = predicate / 6, index1 = predicate % 6;
-//                nowIndex++;
-//                if (nowIndex == currentPredicate.size()) {
-//                    System.out.println("Tx." + attributeNameArray[index0] + comparison[index1] + "Ty." + attributeNameArray[index0]);
-//                    break;
-//                }
-//                System.out.print("Tx." + attributeNameArray[index0] + comparison[index1] + "Ty." + attributeNameArray[index0] + " ∧ ");
-//            }
-            allMinimalCover.add(new HashSet<>(currentPredicate));
+            allMinimalCover.add(new TreeSet<>(currentPredicate));
             return;
         } else if (otherPredicate.isEmpty() || currentPredicate.size() >= maxPreSize) {
             return;
         } else {
 
 //            System.out.println("当前谓词: " + currentPredicate.toString() + "   证据数 " + numberEvidences(isFind));
-            Set<Integer> newPredicates = new HashSet<>(otherPredicate);
+//            Set<Integer> newPredicates = new HashSet<>(otherPredicate);
             for (int[] predicateArray : orderedPre)  {
                 int predicate = predicateArray[0];
-                if (!otherPredicate.contains(predicate)) { continue; }
+                if (!otherPredicate.contains(predicate) || (!currentPredicate.isEmpty() && currentPredicate.last() > predicate)) { continue; }
                 currentPredicate.add(predicate);
                 if (allMinimalCover.contains(currentPredicate) || isSubset(allMinimalCover, currentPredicate)) {
-//                if (allMinimalCover.contains(currentPredicate)) {
                     currentPredicate.remove(predicate);
                     continue;
                 }
                 int index0 = predicate / 6;
-                for (int i = 0; i < 6; i++) { newPredicates.remove(index0 * 6 + i); }
-                Set<Integer> tmpFind = new HashSet<>();
+                for (int i = 0; i < 6; i++) { otherPredicate.remove(index0 * 6 + i); }
+//                Set<Integer> tmpFind = new HashSet<>();
 
-                for (int j : isFind) {
-                    if (j % row != j / row && !arrayB.get(j).contains(predicate)) { tmpFind.add(j); }
-                }
-                isFind.removeAll(tmpFind);
-                findCover(currentPredicate, isFind, newPredicates, orderedPre, allMinimalCover, approximate, maxPreSize);
-                isFind.addAll(tmpFind);
-                tmpFind.clear();
+//                for (int j : isFind) {
+//                    if (j % row != j / row && arrayB.get(j).contains(predicate)) { tmpFind.add(j); }
+//                }
+                isFind.removeAll(predicateEvidence.get(predicate));
+                findCover(currentPredicate, isFind, otherPredicate, orderedPre, allMinimalCover, approximate, maxPreSize);
+                isFind.addAll(predicateEvidence.get(predicate));
                 currentPredicate.remove(predicate);
-                for (int i = 0; i < 6; i++) { newPredicates.add(index0 * 6 + i); }
+                for (int i = 0; i < 6; i++) { otherPredicate.add(index0 * 6 + i); }
             }
         }
     }
